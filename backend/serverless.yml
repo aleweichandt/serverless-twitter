@@ -22,6 +22,9 @@ provider:
     minimumCompressionSize: 1024 # Enable gzip compression for responses > 1 KB
 
   environment:
+    USERS_TABLE: Sls-Twitter-Tweets-£{self:provider.stage}
+    IMAGES_S3_BUCKET: todos-images-alew-${self:provider.stage}
+    SIGNED_URL_EXPIRATION: 300  
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
 
   iamRoleStatements:
@@ -52,8 +55,35 @@ functions:
   Auth:
     handler: src/lambda/auth/auth0Authorizer.handler
 
+  Register:
+    handler: src/lambda/http/registerUser.handler
+    events:
+      - http:
+          method: post
+          path: users/register
+          cors: true
+          authorized: Auth
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:PutItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.USERS_TABLE}
+
 resources:
   Resources:
+    UsersDynamoDBTable:
+      Type: AWS::DynamoDB::Table
+     Properties:
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:provider.environment.USERS_TABLE}
+
     GatewayResponseDefault4XX:
       Type: AWS::ApiGateway::GatewayResponse
       Properties:
