@@ -22,7 +22,9 @@ provider:
     minimumCompressionSize: 1024 # Enable gzip compression for responses > 1 KB
 
   environment:
-    USERS_TABLE: Sls-Twitter-Tweets-£{self:provider.stage}
+    USERS_TABLE: Sls-Twitter-Tweets-${self:provider.stage}
+    TWEETS_TABLE: Sls-Twitter-Tweets-${self:provider.stage}
+    TIME_INDEX: CreatedAtIndex
     IMAGES_S3_BUCKET: todos-images-alew-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300  
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
@@ -38,7 +40,7 @@ provider:
         - 'xray:PutTraceSegments'
         - 'xray:PutTelemetryRecords'
       Resource:
-        - '*'
+         - '*'
 
 custom:
   webpack:
@@ -50,6 +52,10 @@ custom:
         version: v0.0.1
         title: Serverless Twitter API
         description: Serverless application based on Twitter
+    models:
+      - name: CreateUserRequest
+        contentType: application/json
+        schema: ${file(models/create-user-request.json)}
 
 functions:
   Auth:
@@ -62,11 +68,15 @@ functions:
           method: post
           path: users/register
           cors: true
-          authorized: Auth
+          reqValidatorName: RequestBodyValidator
+          documentation:
+            summary: Creates a new user
+            description: Creates a new user
+            requestModels:
+              'application/json': CreateUserRequest
     iamRoleStatements:
       - Effect: Allow
         Action:
-          - dynamodb:GetItem
           - dynamodb:PutItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.USERS_TABLE}
 
@@ -74,7 +84,7 @@ resources:
   Resources:
     UsersDynamoDBTable:
       Type: AWS::DynamoDB::Table
-     Properties:
+      Properties:
         AttributeDefinitions:
           - AttributeName: userId
             AttributeType: S
