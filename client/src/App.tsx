@@ -3,10 +3,9 @@ import { Link, Route, Router, Switch } from 'react-router-dom'
 import { Grid, Menu, Segment } from 'semantic-ui-react'
 
 import Auth from './auth/Auth'
-import { EditTodo } from './components/EditTodo'
-import { LogIn } from './components/LogIn'
+import { EditTodo } from './components/EditProfile'
 import { NotFound } from './components/NotFound'
-import { Todos } from './components/Todos'
+import { Feeds } from './components/Feeds'
 
 export interface AppProps {}
 
@@ -82,17 +81,13 @@ export default class App extends Component<AppProps, AppState> {
   }
 
   generateCurrentPage() {
-    if (!this.props.auth.isAuthenticated()) {
-      return <LogIn auth={this.props.auth} />
-    }
-
     return (
       <Switch>
         <Route
           path="/"
           exact
           render={props => {
-            return <Todos {...props} auth={this.props.auth} />
+            return <Feeds {...props} auth={this.props.auth} />
           }}
         />
 
