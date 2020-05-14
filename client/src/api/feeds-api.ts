@@ -6,7 +6,7 @@ import Axios from 'axios'
 export async function getFeeds(idToken: string): Promise<Feed[]> {
   console.log('Fetching feeds')
 
-  const response = await Axios.get(`${apiEndpoint}/feeds`, {
+  const response = await Axios.get(`${apiEndpoint}/tweets`, {
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${idToken}`
@@ -21,7 +21,7 @@ export async function createFeed(
   newFeed: CreateFeedRequest
 ): Promise<Feed> {
   const response = await Axios.post(
-    `${apiEndpoint}/feeds`,
+    `${apiEndpoint}/tweets`,
     JSON.stringify(newFeed),
     {
       headers: {
@@ -37,7 +37,7 @@ export async function deleteFeed(
   idToken: string,
   feedId: string
 ): Promise<void> {
-  await Axios.delete(`${apiEndpoint}/feeds/${feedId}`, {
+  await Axios.delete(`${apiEndpoint}/tweets/${feedId}`, {
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${idToken}`

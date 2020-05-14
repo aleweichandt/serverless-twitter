@@ -22,7 +22,7 @@ provider:
     minimumCompressionSize: 1024 # Enable gzip compression for responses > 1 KB
 
   environment:
-    USERS_TABLE: Sls-Twitter-Tweets-${self:provider.stage}
+    USERS_TABLE: Sls-Twitter-Users-${self:provider.stage}
     TWEETS_TABLE: Sls-Twitter-Tweets-${self:provider.stage}
     TIME_INDEX: CreatedAtIndex
     IMAGES_S3_BUCKET: todos-images-alew-${self:provider.stage}
@@ -53,6 +53,9 @@ custom:
         title: Serverless Twitter API
         description: Serverless application based on Twitter
     models:
+      - name: CreateTweetRequest
+        contentType: application/json
+        schema: ${file(models/create-tweet-request.json)}
 
 functions:
   Auth:
@@ -76,6 +79,30 @@ functions:
           - dynamodb:PutItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.USERS_TABLE}
 
+  CreateTweet:
+    handler: src/lambda/http/createTweet.handler
+    events:
+      - http:
+          method: post
+          path: tweets
+          cors: true
+          authorizer: Auth
+          reqValidatorName: RequestBodyValidator
+          documentation:
+            summary: Creates a new tweet
+            description: Creates a new tweet for logged user
+            requestModels:
+              'application/json': CreateTweetRequest
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.USERS_TABLE}
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TWEETS_TABLE}
+
 resources:
   Resources:
     UsersDynamoDBTable:
@@ -89,6 +116,33 @@ resources:
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.USERS_TABLE}
+
+    TweetsDynamoDBTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: tweetId
+            AttributeType: S
+          - AttributeName: createdAt
+            AttributeType: S
+        KeySchema:
+          - AttributeName: tweetId
+            KeyType: HASH
+          - AttributeName: userId
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:provider.environment.TWEETS_TABLE}
+        GlobalSecondaryIndexes:
+          - IndexName: ${self:provider.environment.TIME_INDEX}
+            KeySchema:
+              - AttributeName: tweetId
+                KeyType: HASH
+              - AttributeName: createdAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
 
     GatewayResponseDefault4XX:
       Type: AWS::ApiGateway::GatewayResponse
