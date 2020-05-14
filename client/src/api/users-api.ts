@@ -1,6 +1,21 @@
 import Axios from 'axios'
 import { apiEndpoint } from '../config'
+import { User } from '../types/User'
 import { UpdateUserRequest } from '../types/UpdateUserRequest'
+
+export async function registerUser(idToken: string): Promise<User> {
+  const response = await Axios.post(
+    `${apiEndpoint}/users/register`,
+    {},
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${idToken}`
+      }
+    }
+  )
+  return response.data.user
+}
 
 export async function patchUser(
   idToken: string,

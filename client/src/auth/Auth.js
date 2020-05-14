@@ -31,16 +31,20 @@ export default class Auth {
   }
 
   handleAuthentication() {
-    this.auth0.parseHash((err, authResult) => {
-      if (authResult && authResult.accessToken && authResult.idToken) {
-        console.log('Access token: ', authResult.accessToken)
-        console.log('id token: ', authResult.idToken)
-        this.setSession(authResult)
-      } else if (err) {
-        this.history.replace('/')
-        console.log(err)
-        alert(`Error: ${err.error}. Check the console for further details.`)
-      }
+    return new Promise((resolve, reject) => {
+      this.auth0.parseHash((err, authResult) => {
+        if (authResult && authResult.accessToken && authResult.idToken) {
+          console.log('Access token: ', authResult.accessToken)
+          console.log('id token: ', authResult.idToken)
+          this.setSession(authResult)
+          resolve(authResult.idToken)
+        } else if (err) {
+          this.history.replace('/')
+          console.log(err)
+          alert(`Error: ${err.error}. Check the console for further details.`)
+          reject(err)
+        }
+      })
     })
   }
 

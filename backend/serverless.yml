@@ -53,9 +53,6 @@ custom:
         title: Serverless Twitter API
         description: Serverless application based on Twitter
     models:
-      - name: CreateUserRequest
-        contentType: application/json
-        schema: ${file(models/create-user-request.json)}
 
 functions:
   Auth:
@@ -68,15 +65,14 @@ functions:
           method: post
           path: users/register
           cors: true
-          reqValidatorName: RequestBodyValidator
+          authorizer: Auth
           documentation:
             summary: Creates a new user
             description: Creates a new user
-            requestModels:
-              'application/json': CreateUserRequest
     iamRoleStatements:
       - Effect: Allow
         Action:
+          - dynamodb:GetItem
           - dynamodb:PutItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.USERS_TABLE}
 
