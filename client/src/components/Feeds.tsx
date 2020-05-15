@@ -1,20 +1,17 @@
-import dateFormat from 'dateformat'
 import { History } from 'history'
 import * as React from 'react'
 import {
-  Button,
   Divider,
   Grid,
   Header,
-  Icon,
-  Input,
-  Image,
   Loader
 } from 'semantic-ui-react'
 
 import { createFeed, deleteFeed, getFeeds } from '../api/feeds-api'
 import Auth from '../auth/Auth'
 import { Feed } from '../types/Feed'
+import FeedItem from './FeedItem'
+import NewFeed from './NewFeed'
 
 interface FeedsProps {
   auth: Auth
@@ -78,37 +75,16 @@ export class Feeds extends React.PureComponent<FeedsProps, FeedsState> {
   render() {
     return (
       <div>
-        <Header as="h1">Feeds</Header>
-
         {this.renderCreateFeed()}
-
+        <Header as="h1">Latest Tweets</Header>
         {this.renderFeeds()}
       </div>
     )
   }
 
   renderCreateFeed() {
-    return this.props.auth.isAuthenticated ? (
-      <Grid.Row>
-        <Grid.Column width={16}>
-          <Input
-            action={{
-              color: 'teal',
-              labelPosition: 'left',
-              icon: 'add',
-              content: 'Create',
-              onClick: this.onFeedCreate
-            }}
-            fluid
-            actionPosition="left"
-            placeholder="What are your thoughts..."
-            onChange={this.handleNameChange}
-          />
-        </Grid.Column>
-        <Grid.Column width={16}>
-          <Divider />
-        </Grid.Column>
-      </Grid.Row>
+    return this.props.auth.isAuthenticated() ? (
+      <NewFeed onChange={this.handleNameChange} onSubmit={this.onFeedCreate}/>
     ) : null
   }
 
@@ -133,34 +109,16 @@ export class Feeds extends React.PureComponent<FeedsProps, FeedsState> {
   renderFeedList() {
     return (
       <Grid padded>
-        {this.state.feeds.map((feed, pos) => {
-          return (
-            <Grid.Row key={feed.tweetId}>
-              <Grid.Column width={2} verticalAlign="middle">
-                <Image src={feed.avatarUrl} size="small" wrapped />
-                {feed.username}
-              </Grid.Column>
-              <Grid.Column width={10} verticalAlign="middle">
-                {feed.text}
-              </Grid.Column>
-              <Grid.Column width={3} floated="right">
-                {feed.createdAt}
-              </Grid.Column>
-              <Grid.Column width={1} floated="right">
-                <Button
-                  icon
-                  color="red"
-                  onClick={() => this.onFeedDelete(feed.tweetId)}
-                >
-                  <Icon name="delete" />
-                </Button>
-              </Grid.Column>
-              <Grid.Column width={16}>
-                <Divider />
-              </Grid.Column>
-            </Grid.Row>
-          )
-        })}
+        <Grid.Column width={16}>
+          <Divider />
+        </Grid.Column>
+        {this.state.feeds.map((feed, pos) => (
+          <FeedItem 
+            item={feed} 
+            key={feed.tweetId} 
+            onDelete={this.onFeedDelete} 
+            owned={false}/>
+        ))}
       </Grid>
     )
   }
