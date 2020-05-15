@@ -17,6 +17,16 @@ export async function registerUser(idToken: string): Promise<User> {
   return response.data.user
 }
 
+export async function getProfile(idToken: string): Promise<User> {
+  const response = await Axios.get(`${apiEndpoint}/users/me`, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${idToken}`
+    }
+  })
+  return response.data.user
+}
+
 export async function patchUser(
   idToken: string,
   userId: string,

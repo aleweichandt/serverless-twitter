@@ -4,16 +4,14 @@ import { Router, Route } from 'react-router-dom'
 import Callback from './components/Callback'
 import createHistory from 'history/createBrowserHistory'
 import App from './App';
-import { registerUser } from './api/users-api'
 const history = createHistory()
 
 const auth = new Auth(history)
 
-const handleAuthentication = async (props: any) => {
+const handleAuthentication = (props: any) => {
   const location = props.location
   if (/access_token|id_token|error/.test(location.hash)) {
     auth.handleAuthentication()
-      .then((idToken) => registerUser(idToken))
   }
 }
 

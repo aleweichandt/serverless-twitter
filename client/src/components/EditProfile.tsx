@@ -23,7 +23,7 @@ interface EditProfileState {
   uploadState: UploadState
 }
 
-export class EditTodo extends React.PureComponent<
+export class EditProfile extends React.PureComponent<
   EditProfileProps,
   EditProfileState
 > {

@@ -5,6 +5,7 @@ export default class Auth {
   accessToken
   idToken
   expiresAt
+  authCallback
 
   auth0 = new auth0.WebAuth({
     domain: authConfig.domain,
@@ -24,6 +25,8 @@ export default class Auth {
     this.getAccessToken = this.getAccessToken.bind(this)
     this.getIdToken = this.getIdToken.bind(this)
     this.renewSession = this.renewSession.bind(this)
+    this.registerAuthCallback = this.registerAuthCallback.bind(this)
+    this.unregisterAuthCallback = this.unregisterAuthCallback.bind(this)
   }
 
   login() {
@@ -45,7 +48,7 @@ export default class Auth {
           reject(err)
         }
       })
-    })
+    }).then(() => this.authCallback && this.authCallback())
   }
 
   getAccessToken() {
@@ -107,5 +110,12 @@ export default class Auth {
     // access token's expiry time
     let expiresAt = this.expiresAt
     return new Date().getTime() < expiresAt
+  }
+
+  registerAuthCallback(callback) {
+    this.authCallback = callback
+  }
+  unregisterAuthCallback() {
+    this.authCallback = undefined
   }
 }

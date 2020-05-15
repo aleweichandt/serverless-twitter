@@ -3,25 +3,46 @@ import { Link, Route, Router, Switch } from 'react-router-dom'
 import { Grid, Menu, Segment } from 'semantic-ui-react'
 
 import Auth from './auth/Auth'
-import { EditTodo } from './components/EditProfile'
+import { EditProfile } from './components/EditProfile'
 import { NotFound } from './components/NotFound'
 import { Feeds } from './components/Feeds'
-
-export interface AppProps {}
+import { User } from './types/User'
+import { getProfile, registerUser } from './api/users-api'
 
 export interface AppProps {
   auth: Auth
   history: any
 }
 
-export interface AppState {}
+export interface AppState {
+  user: User | void
+}
 
 export default class App extends Component<AppProps, AppState> {
+  state: AppState = {
+    user: undefined
+  }
   constructor(props: AppProps) {
     super(props)
 
     this.handleLogin = this.handleLogin.bind(this)
     this.handleLogout = this.handleLogout.bind(this)
+  }
+
+  componentDidMount() {
+    this.props.auth.registerAuthCallback(this.fetchProfileInfo)
+  }
+
+  componentWillUnmount() {
+    this.props.auth.unregisterAuthCallback()
+  }
+
+  fetchProfileInfo = async (idToken: string) => {
+    try {
+      await registerUser(idToken)
+    } catch(err) {}
+    const user = await getProfile(this.props.auth.idToken)
+    this.setState({ user })
   }
 
   handleLogin() {
@@ -67,9 +88,14 @@ export default class App extends Component<AppProps, AppState> {
   logInLogOutButton() {
     if (this.props.auth.isAuthenticated()) {
       return (
-        <Menu.Item name="logout" onClick={this.handleLogout}>
-          Log Out
-        </Menu.Item>
+        <>
+          <Menu.Item name="profile" >
+            <Link to="/profile/me">Profile</Link>
+          </Menu.Item>
+          <Menu.Item name="logout" onClick={this.handleLogout}>
+            Log Out
+          </Menu.Item>
+        </>
       )
     } else {
       return (
@@ -92,10 +118,10 @@ export default class App extends Component<AppProps, AppState> {
         />
 
         <Route
-          path="/todos/:todoId/edit"
+          path="/profile/me"
           exact
           render={props => {
-            return <EditTodo {...props} auth={this.props.auth} />
+            return <EditProfile {...props} auth={this.props.auth} />
           }}
         />
 
