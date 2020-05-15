@@ -7,7 +7,8 @@ const logger = createLogger('TweetAccess')
 export class TweetAccess {
   constructor(
     private readonly dbClient: DBClient = createDBClient(),
-    private readonly tweetsTable = process.env.TWEETS_TABLE
+    private readonly tweetsTable = process.env.TWEETS_TABLE,
+    private readonly userIndex = process.env.USER_INDEX
   ) {}
 
   async createTweet(tweet: Tweet): Promise<Tweet> {
@@ -25,23 +26,62 @@ export class TweetAccess {
     return tweet
   }
 
+  async deleteTweet(tweet: Tweet): Promise<Tweet> {
+    const { createdAt, tweetId } = tweet
+    logger.info('Delete tweet with id', { tweetId })
+
+    const result = await this.dbClient
+      .delete({
+        TableName: this.tweetsTable,
+        Key: { tweetId, createdAt },
+        ReturnValues: 'ALL_OLD'
+      })
+      .promise()
+
+    const deletedItem = result.Attributes
+    logger.info('Tweet deleted', { tweet: deletedItem })
+
+    return deletedItem as Tweet
+  }
+
   async getLatestTweetsFrom(): Promise<Tweet[]> {
     logger.info('Fetching latest tweets')
 
-    try {
-      const result = await this.dbClient
-        .scan({
-          TableName: this.tweetsTable
-        })
-        .promise()
+    const result = await this.dbClient
+      .scan({
+        TableName: this.tweetsTable
+      })
+      .promise()
 
-      const items = result.Items
-      logger.info('Sucesfully fetch tweets', { items })
+    const items = result.Items
+    logger.info('Sucesfully fetch tweets', { items })
 
-      return items as Tweet[]
-    } catch (error) {
-      logger.error('error:', { error })
-      throw error
+    return items as Tweet[]
+  }
+
+  async getUserTweet(userId: string, tweetId: string): Promise<Tweet> {
+    logger.info('Fetching tweet with id for user', { tweetId, userId })
+
+    const result = await this.dbClient
+      .query({
+        TableName: this.tweetsTable,
+        IndexName: this.userIndex,
+        KeyConditionExpression: 'tweetId = :tweetId and userId = :userId',
+        ExpressionAttributeValues: {
+          ':tweetId': tweetId,
+          ':userId': userId
+        }
+      })
+      .promise()
+
+    if (result.Items.length < 1) {
+      logger.error('Tweet not found', { tweetId, userId })
+      throw new Error('not found')
     }
+
+    const tweet = result.Items[0]
+    logger.info('Tweet for user', { userId, tweet })
+
+    return tweet as Tweet
   }
 }

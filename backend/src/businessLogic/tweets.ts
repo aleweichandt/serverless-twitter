@@ -2,8 +2,15 @@ import * as uuid from 'uuid'
 import { CreateTweetRequest } from '../requests/CreateTweetRequest'
 import { getUserWithId } from './users'
 import { Tweet } from '../models/Tweet'
-import { InvalidRequestError } from '../models/Error'
+import {
+  InvalidRequestError,
+  NotFoundError,
+  ForbiddenError
+} from '../models/Error'
 import { TweetAccess } from '../dataLayer/tweetAccess'
+import { createLogger } from '../utils/logger'
+
+const logger = createLogger('tweetsLogic')
 
 const tweetAccess = new TweetAccess()
 
@@ -28,4 +35,34 @@ export async function createUserTweet(
 
 export async function getTweets(): Promise<Tweet[]> {
   return tweetAccess.getLatestTweetsFrom()
+}
+
+export async function deleteUserTweet(
+  userId: string,
+  tweetId: string
+): Promise<Tweet> {
+  const tweet = await findUserOwnedTweet(userId, tweetId)
+
+  return tweetAccess.deleteTweet(tweet)
+}
+
+async function findUserOwnedTweet(
+  userId: string,
+  tweetId: string
+): Promise<Tweet> {
+  let item: Tweet = null
+  try {
+    item = await tweetAccess.getUserTweet(userId, tweetId)
+  } catch (error) {
+    logger.error('tweet not found', { tweetId })
+    throw new NotFoundError('not found')
+  }
+  if (item && item.userId !== userId) {
+    logger.error('tweet with id does not belong to user', {
+      tweet: item,
+      userId
+    })
+    throw new ForbiddenError('tweet does not belong to this user')
+  }
+  return item
 }
