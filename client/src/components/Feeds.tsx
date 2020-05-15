@@ -43,7 +43,7 @@ export class Feeds extends React.PureComponent<FeedsProps, FeedsState> {
         text: this.state.newFeed,
       })
       this.setState({
-        feeds: [...this.state.feeds, newFeed],
+        feeds: [newFeed, ...this.state.feeds, ],
         newFeed: ''
       })
     } catch {
