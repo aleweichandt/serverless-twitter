@@ -30,7 +30,7 @@ export async function createFeed(
       }
     }
   )
-  return response.data.item
+  return response.data.tweet
 }
 
 export async function deleteFeed(
