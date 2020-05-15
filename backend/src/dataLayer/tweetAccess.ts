@@ -7,7 +7,7 @@ const logger = createLogger('TweetAccess')
 export class TweetAccess {
   constructor(
     private readonly dbClient: DBClient = createDBClient(),
-    private readonly usersTable = process.env.TWEETS_TABLE
+    private readonly tweetsTable = process.env.TWEETS_TABLE
   ) {}
 
   async createTweet(tweet: Tweet): Promise<Tweet> {
@@ -15,7 +15,7 @@ export class TweetAccess {
 
     await this.dbClient
       .put({
-        TableName: this.usersTable,
+        TableName: this.tweetsTable,
         Item: tweet
       })
       .promise()
@@ -23,5 +23,25 @@ export class TweetAccess {
     logger.info('Sucesfully added tweet', { tweet })
 
     return tweet
+  }
+
+  async getLatestTweetsFrom(): Promise<Tweet[]> {
+    logger.info('Fetching latest tweets')
+
+    try {
+      const result = await this.dbClient
+        .scan({
+          TableName: this.tweetsTable
+        })
+        .promise()
+
+      const items = result.Items
+      logger.info('Sucesfully fetch tweets', { items })
+
+      return items as Tweet[]
+    } catch (error) {
+      logger.error('error:', { error })
+      throw error
+    }
   }
 }

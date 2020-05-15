@@ -56,7 +56,7 @@ export class Feeds extends React.PureComponent<FeedsProps, FeedsState> {
     try {
       await deleteFeed(this.props.auth.getIdToken(), feedId)
       this.setState({
-        feeds: this.state.feeds.filter(feed => feed.id != feedId)
+        feeds: this.state.feeds.filter(feed => feed.tweetId != feedId)
       })
     } catch {
       alert('Feed deletion failed')
@@ -135,7 +135,7 @@ export class Feeds extends React.PureComponent<FeedsProps, FeedsState> {
       <Grid padded>
         {this.state.feeds.map((feed, pos) => {
           return (
-            <Grid.Row key={feed.id}>
+            <Grid.Row key={feed.tweetId}>
               <Grid.Column width={2} verticalAlign="middle">
                 <Image src={feed.avatarUrl} size="small" wrapped />
                 {feed.username}
@@ -150,7 +150,7 @@ export class Feeds extends React.PureComponent<FeedsProps, FeedsState> {
                 <Button
                   icon
                   color="red"
-                  onClick={() => this.onFeedDelete(feed.id)}
+                  onClick={() => this.onFeedDelete(feed.tweetId)}
                 >
                   <Icon name="delete" />
                 </Button>

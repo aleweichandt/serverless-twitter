@@ -25,3 +25,7 @@ export async function createUserTweet(
   }
   return tweetAccess.createTweet(tweet)
 }
+
+export async function getTweets(): Promise<Tweet[]> {
+  return tweetAccess.getLatestTweetsFrom()
+}

@@ -5,23 +5,20 @@ import { cors } from 'middy/middlewares'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 
 import { createLogger } from '../../utils/logger'
-import { createUserTweet } from '../../businessLogic/tweets'
-import { getUserId, handleError } from '../utils'
-import { CreateTweetRequest } from '../../requests/CreateTweetRequest'
+import { handleError } from '../utils'
+import { getTweets } from '../../businessLogic/tweets'
 
-const logger = createLogger('createTweet')
+const logger = createLogger('getTweets')
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     logger.info('Processing event', { event })
-    const userId = getUserId(event)
-    const request: CreateTweetRequest = JSON.parse(event.body)
 
     try {
-      const tweet = await createUserTweet(userId, request)
+      const items = await getTweets()
       return {
-        statusCode: 201,
-        body: JSON.stringify({ tweet })
+        statusCode: 200,
+        body: JSON.stringify({ items })
       }
     } catch (error) {
       return handleError(error)

@@ -1,5 +1,5 @@
 export interface Feed {
-  id: string
+  tweetId: string
   userId: string
   username: string
   avatarUrl: string

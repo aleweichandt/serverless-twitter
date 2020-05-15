@@ -24,7 +24,7 @@ provider:
   environment:
     USERS_TABLE: Sls-Twitter-Users-${self:provider.stage}
     TWEETS_TABLE: Sls-Twitter-Tweets-${self:provider.stage}
-    TIME_INDEX: CreatedAtIndex
+    USER_INDEX: UserIndex
     IMAGES_S3_BUCKET: todos-images-alew-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300  
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
@@ -79,6 +79,22 @@ functions:
           - dynamodb:PutItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.USERS_TABLE}
 
+  GetTweets:
+    handler: src/lambda/http/getTweets.handler
+    events:
+      - http:
+          method: get
+          path: tweets
+          cors: true
+          documentation:
+            summary: Gets latest tweets
+            description: Gets latest tweets ordered by creation date paginated
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TWEETS_TABLE}
+
   CreateTweet:
     handler: src/lambda/http/createTweet.handler
     events:
@@ -130,16 +146,16 @@ resources:
         KeySchema:
           - AttributeName: tweetId
             KeyType: HASH
-          - AttributeName: userId
+          - AttributeName: createdAt
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.TWEETS_TABLE}
         GlobalSecondaryIndexes:
-          - IndexName: ${self:provider.environment.TIME_INDEX}
+          - IndexName: ${self:provider.environment.USER_INDEX}
             KeySchema:
-              - AttributeName: tweetId
+              - AttributeName: userId
                 KeyType: HASH
-              - AttributeName: createdAt
+              - AttributeName: tweetId
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL
