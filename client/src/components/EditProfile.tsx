@@ -2,6 +2,7 @@ import * as React from 'react'
 import { Form, Button } from 'semantic-ui-react'
 import Auth from '../auth/Auth'
 import { getUploadUrl, uploadFile } from '../api/users-api'
+import { User } from '../types/User'
 
 enum UploadState {
   NoUpload,
@@ -16,6 +17,7 @@ interface EditProfileProps {
     }
   }
   auth: Auth
+  user: User
 }
 
 interface EditProfileState {
@@ -73,7 +75,7 @@ export class EditProfile extends React.PureComponent<
   render() {
     return (
       <div>
-        <h1>Upload new image</h1>
+        <h1>Hello {this.props.user.username}</h1>
 
         <Form onSubmit={this.handleSubmit}>
           <Form.Field>

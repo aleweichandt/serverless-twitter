@@ -12,9 +12,11 @@ import Auth from '../auth/Auth'
 import { Feed } from '../types/Feed'
 import FeedItem from './FeedItem'
 import NewFeed from './NewFeed'
+import { User } from '../types/User'
 
 interface FeedsProps {
   auth: Auth
+  user: User | void
   history: History
 }
 
@@ -107,6 +109,7 @@ export class Feeds extends React.PureComponent<FeedsProps, FeedsState> {
   }
 
   renderFeedList() {
+    const userId = this.props.user && this.props.user.userId
     return (
       <Grid padded>
         <Grid.Column width={16}>
@@ -117,7 +120,7 @@ export class Feeds extends React.PureComponent<FeedsProps, FeedsState> {
             item={feed} 
             key={feed.tweetId} 
             onDelete={this.onFeedDelete} 
-            owned={false}/>
+            owned={userId === feed.userId}/>
         ))}
       </Grid>
     )

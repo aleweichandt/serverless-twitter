@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Link, Route, Router, Switch } from 'react-router-dom'
+import { Link, Route, Router, Switch, Redirect } from 'react-router-dom'
 import { Grid, Menu, Segment } from 'semantic-ui-react'
 
 import Auth from './auth/Auth'
@@ -113,7 +113,7 @@ export default class App extends Component<AppProps, AppState> {
           path="/"
           exact
           render={props => {
-            return <Feeds {...props} auth={this.props.auth} />
+            return <Feeds {...props} auth={this.props.auth} user={this.state.user}/>
           }}
         />
 
@@ -121,7 +121,11 @@ export default class App extends Component<AppProps, AppState> {
           path="/profile/me"
           exact
           render={props => {
-            return <EditProfile {...props} auth={this.props.auth} />
+            return this.state.user ? (
+              <EditProfile {...props} auth={this.props.auth} user={this.state.user}/>
+            ) : (
+              <Redirect to={{pathname: "/"}}/>
+            )
           }}
         />
 
