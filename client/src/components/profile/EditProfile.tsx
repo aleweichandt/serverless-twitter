@@ -42,7 +42,12 @@ export class EditProfile extends React.PureComponent<
     const request: UpdateUserRequest = {
       username: this.state.username
     }
-    await updateProfile(this.props.auth.getIdToken(), request)
+    try {
+      await updateProfile(this.props.auth.getIdToken(), request)
+      alert('Profile updated')
+    } catch(error) {
+      alert('Could not update profile')
+    }
     this.setState({ updateState: false })
   }
 
