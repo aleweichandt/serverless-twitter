@@ -9,7 +9,7 @@ export class TweetAccess {
   constructor(
     private readonly dbClient: DBClient = createDBClient(),
     private readonly tweetsTable = process.env.TWEETS_TABLE,
-    private readonly userIndex = process.env.USER_INDEX
+    private readonly timeIndex = process.env.TIME_INDEX
   ) {}
 
   async createTweet(tweet: Tweet): Promise<Tweet> {
@@ -30,11 +30,11 @@ export class TweetAccess {
   async updateTweet(tweet: Tweet, update: TweetUpdate): Promise<Tweet> {
     logger.info('Updating tweet with info', { tweet, update })
 
-    const { tweetId, createdAt } = tweet
+    const { tweetId, userId } = tweet
     const result = await this.dbClient
       .update({
         TableName: this.tweetsTable,
-        Key: { tweetId, createdAt },
+        Key: { tweetId, userId },
         UpdateExpression: 'set username=:username',
         ExpressionAttributeValues: {
           ':username': update.username
@@ -50,13 +50,13 @@ export class TweetAccess {
   }
 
   async deleteTweet(tweet: Tweet): Promise<Tweet> {
-    const { createdAt, tweetId } = tweet
+    const { userId, tweetId } = tweet
     logger.info('Delete tweet with id', { tweetId })
 
     const result = await this.dbClient
       .delete({
         TableName: this.tweetsTable,
-        Key: { tweetId, createdAt },
+        Key: { tweetId, userId },
         ReturnValues: 'ALL_OLD'
       })
       .promise()
@@ -67,12 +67,13 @@ export class TweetAccess {
     return deletedItem as Tweet
   }
 
-  async getLatestTweetsFrom(): Promise<Tweet[]> {
+  async getLatestTweets(): Promise<Tweet[]> {
     logger.info('Fetching latest tweets')
 
     const result = await this.dbClient
       .scan({
-        TableName: this.tweetsTable
+        TableName: this.tweetsTable,
+        IndexName: this.timeIndex
       })
       .promise()
 
@@ -88,7 +89,6 @@ export class TweetAccess {
     const result = await this.dbClient
       .query({
         TableName: this.tweetsTable,
-        IndexName: this.userIndex,
         KeyConditionExpression: 'userId = :userId',
         ExpressionAttributeValues: {
           ':userId': userId
@@ -113,7 +113,6 @@ export class TweetAccess {
     const result = await this.dbClient
       .query({
         TableName: this.tweetsTable,
-        IndexName: this.userIndex,
         KeyConditionExpression: 'tweetId = :tweetId and userId = :userId',
         ExpressionAttributeValues: {
           ':tweetId': tweetId,

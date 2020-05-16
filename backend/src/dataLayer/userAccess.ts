@@ -58,6 +58,9 @@ export class UserAccess {
       .promise()
 
     const user = result.Item
+    if (!user) {
+      throw new Error('not found')
+    }
 
     logger.info('Sucesfully get user', { user })
 

@@ -10,7 +10,6 @@ import {
 import { TweetAccess } from '../dataLayer/tweetAccess'
 import { createLogger } from '../utils/logger'
 import { UserUpdate } from '../models/UserUpdate'
-import { stringify } from 'querystring'
 
 const logger = createLogger('tweetsLogic')
 
@@ -36,7 +35,7 @@ export async function createUserTweet(
 }
 
 export async function getTweets(): Promise<Tweet[]> {
-  return tweetAccess.getLatestTweetsFrom()
+  return tweetAccess.getLatestTweets()
 }
 
 export async function deleteUserTweet(

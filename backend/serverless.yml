@@ -7,6 +7,9 @@ plugins:
   - serverless-aws-documentation
   - serverless-plugin-tracing
 
+package:
+  individually: true
+
 provider:
   name: aws
   runtime: nodejs12.x
@@ -24,7 +27,7 @@ provider:
   environment:
     USERS_TABLE: Sls-Twitter-Users-${self:provider.stage}
     TWEETS_TABLE: Sls-Twitter-Tweets-${self:provider.stage}
-    USER_INDEX: UserIndex
+    TIME_INDEX: TimeIndex
     IMAGES_S3_BUCKET: todos-images-alew-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300  
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
@@ -155,11 +158,8 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:UpdateItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TWEETS_TABLE}
-      - Effect: Allow
-        Action:
           - dynamodb:Query
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TWEETS_TABLE}/index/${self:provider.environment.USER_INDEX}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TWEETS_TABLE}
 
   GetTweets:
     handler: src/lambda/http/getTweets.handler
@@ -176,6 +176,10 @@ functions:
         Action:
           - dynamodb:Scan
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TWEETS_TABLE}
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TWEETS_TABLE}/index/${self:provider.environment.TIME_INDEX}
 
   CreateTweet:
     handler: src/lambda/http/createTweet.handler
@@ -219,12 +223,9 @@ functions:
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.USERS_TABLE}
       - Effect: Allow
         Action:
+          - dynamodb:Query
           - dynamodb:DeleteItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TWEETS_TABLE}
-      - Effect: Allow
-        Action:
-          - dynamodb:Query
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TWEETS_TABLE}/index/${self:provider.environment.USER_INDEX}
 
 resources:
   Resources:
@@ -253,19 +254,17 @@ resources:
           - AttributeName: createdAt
             AttributeType: S
         KeySchema:
-          - AttributeName: tweetId
+          - AttributeName: userId
             KeyType: HASH
-          - AttributeName: createdAt
+          - AttributeName: tweetId
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.TWEETS_TABLE}
         GlobalSecondaryIndexes:
-          - IndexName: ${self:provider.environment.USER_INDEX}
+          - IndexName: ${self:provider.environment.TIME_INDEX}
             KeySchema:
-              - AttributeName: userId
+              - AttributeName: createdAt
                 KeyType: HASH
-              - AttributeName: tweetId
-                KeyType: RANGE
             Projection:
               ProjectionType: ALL
 
