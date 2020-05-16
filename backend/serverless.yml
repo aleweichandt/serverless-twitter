@@ -53,6 +53,9 @@ custom:
         title: Serverless Twitter API
         description: Serverless application based on Twitter
     models:
+      - name: UpdateUserRequest
+        contentType: application/json
+        schema: ${file(models/update-user-request.json)}
       - name: CreateTweetRequest
         contentType: application/json
         schema: ${file(models/create-tweet-request.json)}
@@ -94,6 +97,27 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:GetItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.USERS_TABLE}
+
+  UpdateUser:
+    handler: src/lambda/http/updateUser.handler
+    events:
+      - http:
+          method: patch
+          path: users/{userId}
+          cors: true
+          authorizer: Auth
+          reqValidatorName: RequestBodyValidator
+          documentation:
+            summary: Update an existing user
+            description: Update an existing user
+            requestModels:
+              'application/json': UpdateUserRequest
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.USERS_TABLE}
 
   GenerateAvatarUrl:

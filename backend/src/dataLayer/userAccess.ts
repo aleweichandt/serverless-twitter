@@ -1,6 +1,7 @@
 import { createDBClient, DBClient } from '../utils/dbClient'
 import { createLogger } from '../utils/logger'
 import { User } from '../models/User'
+import { UserUpdate } from '../models/UserUpdate'
 
 const logger = createLogger('UserAccess')
 
@@ -23,6 +24,28 @@ export class UserAccess {
     logger.info('Sucesfully added user', { user })
 
     return user
+  }
+
+  async updateUser(user: User, update: UserUpdate): Promise<User> {
+    logger.info('Updating user with info', { user, update })
+
+    const { userId } = user
+    const result = await this.dbClient
+      .update({
+        TableName: this.usersTable,
+        Key: { userId },
+        UpdateExpression: 'set username=:username',
+        ExpressionAttributeValues: {
+          ':username': update.username
+        },
+        ReturnValues: 'ALL_NEW'
+      })
+      .promise()
+
+    const updatedUser = result.Attributes
+    logger.info('User updated', { user: updatedUser })
+
+    return updatedUser as User
   }
 
   async getUser(userId: string): Promise<User> {

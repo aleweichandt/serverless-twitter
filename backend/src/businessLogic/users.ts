@@ -3,6 +3,7 @@ import { ImageAccess } from '../dataLayer/ImageAccess'
 import { User } from '../models/User'
 import { UserAccess } from '../dataLayer/userAccess'
 import { InvalidRequestError } from '../models/Error'
+import { UpdateUserRequest } from '../requests/UpdateUserRequest'
 
 const userAccess = new UserAccess()
 const imageAccess = new ImageAccess()
@@ -22,6 +23,15 @@ export async function createUserWithId(userId: string): Promise<User> {
   }
 
   return userAccess.createUser(user)
+}
+
+export async function updateUserWithId(
+  userId: string,
+  request: UpdateUserRequest
+): Promise<User> {
+  const user = await userAccess.getUser(userId)
+
+  return userAccess.updateUser(user, request)
 }
 
 export async function getUserWithId(userId: string): Promise<User> {
