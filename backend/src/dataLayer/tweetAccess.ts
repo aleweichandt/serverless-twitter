@@ -9,7 +9,7 @@ export class TweetAccess {
   constructor(
     private readonly dbClient: DBClient = createDBClient(),
     private readonly tweetsTable = process.env.TWEETS_TABLE,
-    private readonly timeIndex = process.env.TIME_INDEX
+    private readonly topicsIndex = process.env.TOPICS_INDEX
   ) {}
 
   async createTweet(tweet: Tweet): Promise<Tweet> {
@@ -67,18 +67,23 @@ export class TweetAccess {
     return deletedItem as Tweet
   }
 
-  async getLatestTweets(): Promise<Tweet[]> {
-    logger.info('Fetching latest tweets')
+  async getLatestTweetsForTopic(topic: string): Promise<Tweet[]> {
+    logger.info('Fetching latest tweets for topic', { topic })
 
     const result = await this.dbClient
-      .scan({
+      .query({
         TableName: this.tweetsTable,
-        IndexName: this.timeIndex
+        IndexName: this.topicsIndex,
+        KeyConditionExpression: 'topic = :topic',
+        ExpressionAttributeValues: {
+          ':topic': topic
+        },
+        ScanIndexForward: false
       })
       .promise()
 
     const items = result.Items
-    logger.info('Sucesfully fetch tweets', { items })
+    logger.info('Sucesfully fetch tweets for topic', { items, topic })
 
     return items as Tweet[]
   }

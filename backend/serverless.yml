@@ -27,7 +27,7 @@ provider:
   environment:
     USERS_TABLE: Sls-Twitter-Users-${self:provider.stage}
     TWEETS_TABLE: Sls-Twitter-Tweets-${self:provider.stage}
-    TIME_INDEX: TimeIndex
+    TOPICS_INDEX: TopicsIndex
     IMAGES_S3_BUCKET: todos-images-alew-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300  
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
@@ -102,12 +102,12 @@ functions:
           - dynamodb:GetItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.USERS_TABLE}
 
-  UpdateUser:
+  UpdateProfile:
     handler: src/lambda/http/updateUser.handler
     events:
       - http:
           method: patch
-          path: users/{userId}
+          path: users/me
           cors: true
           authorizer: Auth
           reqValidatorName: RequestBodyValidator
@@ -128,7 +128,7 @@ functions:
     events:
       - http:
           method: post
-          path: users/{userId}/attachment
+          path: users/me/attachment
           cors: true
           authorizer: Auth
     iamRoleStatements:
@@ -174,12 +174,8 @@ functions:
     iamRoleStatements:
       - Effect: Allow
         Action:
-          - dynamodb:Scan
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TWEETS_TABLE}
-      - Effect: Allow
-        Action:
-          - dynamodb:Scan
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TWEETS_TABLE}/index/${self:provider.environment.TIME_INDEX}
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TWEETS_TABLE}/index/${self:provider.environment.TOPICS_INDEX}
 
   CreateTweet:
     handler: src/lambda/http/createTweet.handler
@@ -253,6 +249,8 @@ resources:
             AttributeType: S
           - AttributeName: createdAt
             AttributeType: S
+          - AttributeName: topic
+            AttributeType: S
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
@@ -261,10 +259,12 @@ resources:
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.TWEETS_TABLE}
         GlobalSecondaryIndexes:
-          - IndexName: ${self:provider.environment.TIME_INDEX}
+          - IndexName: ${self:provider.environment.TOPICS_INDEX}
             KeySchema:
-              - AttributeName: createdAt
+              - AttributeName: topic
                 KeyType: HASH
+              - AttributeName: createdAt
+                KeyType: RANGE
             Projection:
               ProjectionType: ALL
 

@@ -10,6 +10,7 @@ import {
 import { TweetAccess } from '../dataLayer/tweetAccess'
 import { createLogger } from '../utils/logger'
 import { UserUpdate } from '../models/UserUpdate'
+import { topicsFor, globalTopic } from './topics'
 
 const logger = createLogger('tweetsLogic')
 
@@ -23,19 +24,29 @@ export async function createUserTweet(
   if (!user) {
     throw new InvalidRequestError('Invalid user for request')
   }
-  const tweetId = uuid.v4()
   const createdAt = new Date().toISOString()
-  const tweet: Tweet = {
-    tweetId,
-    createdAt,
-    ...user,
-    text: request.text
-  }
-  return tweetAccess.createTweet(tweet)
+
+  const topics = await topicsFor(request.text)
+
+  const results = await Promise.all(
+    topics.map((topic: string) => {
+      const tweet: Tweet = {
+        tweetId: `${userId}-${topic}-${createdAt}`,
+        createdAt,
+        topic,
+        ...user,
+        text: request.text
+      }
+      return tweetAccess.createTweet(tweet)
+    })
+  )
+  return results[0]
 }
 
-export async function getTweets(): Promise<Tweet[]> {
-  return tweetAccess.getLatestTweets()
+export async function getTweetsForTopic(
+  topic: string = globalTopic
+): Promise<Tweet[]> {
+  return tweetAccess.getLatestTweetsForTopic(topic)
 }
 
 export async function deleteUserTweet(

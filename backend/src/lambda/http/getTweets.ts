@@ -6,7 +6,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 
 import { createLogger } from '../../utils/logger'
 import { handleError } from '../utils'
-import { getTweets } from '../../businessLogic/tweets'
+import { getTweetsForTopic } from '../../businessLogic/tweets'
 
 const logger = createLogger('getTweets')
 
@@ -15,7 +15,7 @@ export const handler = middy(
     logger.info('Processing event', { event })
 
     try {
-      const items = await getTweets()
+      const items = await getTweetsForTopic()
       return {
         statusCode: 200,
         body: JSON.stringify({ items })
