@@ -9,6 +9,8 @@ import {
 } from '../models/Error'
 import { TweetAccess } from '../dataLayer/tweetAccess'
 import { createLogger } from '../utils/logger'
+import { UserUpdate } from '../models/UserUpdate'
+import { stringify } from 'querystring'
 
 const logger = createLogger('tweetsLogic')
 
@@ -44,6 +46,17 @@ export async function deleteUserTweet(
   const tweet = await findUserOwnedTweet(userId, tweetId)
 
   return tweetAccess.deleteTweet(tweet)
+}
+
+export async function updateTweetsUserInfo(
+  userId: string,
+  update: UserUpdate
+): Promise<Tweet[]> {
+  const tweets = await tweetAccess.getUserTweets(userId)
+  const updates = tweets.map((tweet: Tweet) =>
+    tweetAccess.updateTweet(tweet, update)
+  )
+  return Promise.all(updates)
 }
 
 async function findUserOwnedTweet(
