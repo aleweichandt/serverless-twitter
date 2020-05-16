@@ -15,7 +15,7 @@ interface FeedItemProps {
 }
 
 const FeedItem = ({ item, owned, onDelete }: FeedItemProps) => (
-    <Grid.Row>
+    <>
       <Grid.Column width={1} verticalAlign="top">
         <Image src={item.avatarUrl} size="mini" wrapped circular bordered/>
       </Grid.Column>
@@ -47,10 +47,7 @@ const FeedItem = ({ item, owned, onDelete }: FeedItemProps) => (
           </Grid.Row>
           </Grid>
       </Grid.Column>
-      <Grid.Column width={16}>
-        <Divider />
-      </Grid.Column>
-    </Grid.Row>
+    </>
 )
 
 export default FeedItem

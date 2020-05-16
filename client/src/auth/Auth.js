@@ -40,7 +40,7 @@ export default class Auth {
           console.log('Access token: ', authResult.accessToken)
           console.log('id token: ', authResult.idToken)
           this.setSession(authResult)
-          resolve(authResult.idToken)
+          resolve(this.idToken)
         } else if (err) {
           this.history.replace('/')
           console.log(err)
@@ -48,7 +48,7 @@ export default class Auth {
           reject(err)
         }
       })
-    }).then(() => this.authCallback && this.authCallback())
+    }).then((tkn) => this.authCallback && this.authCallback(tkn))
   }
 
   getAccessToken() {

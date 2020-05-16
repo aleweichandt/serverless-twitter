@@ -116,11 +116,15 @@ export class Feeds extends React.PureComponent<FeedsProps, FeedsState> {
           <Divider />
         </Grid.Column>
         {this.state.feeds.map((feed, pos) => (
-          <FeedItem 
-            item={feed} 
-            key={feed.tweetId} 
-            onDelete={this.onFeedDelete} 
-            owned={userId === feed.userId}/>
+          <Grid.Row key={feed.tweetId} >
+            <FeedItem 
+              item={feed} 
+              onDelete={this.onFeedDelete} 
+              owned={userId === feed.userId}/>
+            <Grid.Column width={16}>
+              <Divider />
+            </Grid.Column>
+          </Grid.Row>
         ))}
       </Grid>
     )
