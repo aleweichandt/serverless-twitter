@@ -7,12 +7,12 @@ import {
   Loader
 } from 'semantic-ui-react'
 
-import { createFeed, deleteFeed, getFeeds } from '../api/feeds-api'
-import Auth from '../auth/Auth'
-import { Feed } from '../types/Feed'
+import { createFeed, deleteFeed, getFeeds } from '../../api/feeds-api'
+import Auth from '../../auth/Auth'
+import { Feed } from '../../types/Feed'
 import FeedItem from './FeedItem'
 import NewFeed from './NewFeed'
-import { User } from '../types/User'
+import { User } from '../../types/User'
 
 interface FeedsProps {
   auth: Auth

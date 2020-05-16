@@ -6,7 +6,7 @@ import {
   Divider,
   Image
 } from 'semantic-ui-react'
-import { Feed } from '../types/Feed';
+import { Feed } from '../../types/Feed';
 
 interface FeedItemProps {
     item: Feed,
@@ -16,12 +16,12 @@ interface FeedItemProps {
 
 const FeedItem = ({ item, owned, onDelete }: FeedItemProps) => (
     <Grid.Row>
-      <Grid.Column width={2} verticalAlign="middle">
-        <Image src={item.avatarUrl} size="small" wrapped />
+      <Grid.Column width={1} verticalAlign="top">
+        <Image src={item.avatarUrl} size="mini" wrapped circular bordered/>
       </Grid.Column>
-      <Grid.Column width={14}>
+      <Grid.Column width={15} verticalAlign="top">
         <Grid padded>
-          <Grid.Row>
+          <Grid.Row >
               <Grid.Column width={12} floated="left">
                     {item.username}
               </Grid.Column>

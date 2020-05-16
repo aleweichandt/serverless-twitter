@@ -27,21 +27,16 @@ export async function getProfile(idToken: string): Promise<User> {
   return response.data.user
 }
 
-export async function patchUser(
+export async function updateProfile(
   idToken: string,
-  userId: string,
   updatedUser: UpdateUserRequest
 ): Promise<void> {
-  await Axios.patch(
-    `${apiEndpoint}/users/${userId}`,
-    JSON.stringify(updatedUser),
-    {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${idToken}`
-      }
+  await Axios.patch(`${apiEndpoint}/users/me`, JSON.stringify(updatedUser), {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${idToken}`
     }
-  )
+  })
 }
 
 export async function getAvatartUploadUrl(idToken: string): Promise<string> {

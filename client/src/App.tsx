@@ -3,9 +3,9 @@ import { Link, Route, Router, Switch, Redirect } from 'react-router-dom'
 import { Grid, Menu, Segment } from 'semantic-ui-react'
 
 import Auth from './auth/Auth'
-import { EditProfile } from './components/EditProfile'
+import { EditProfile } from './components/profile/EditProfile'
 import { NotFound } from './components/NotFound'
-import { Feeds } from './components/Feeds'
+import { Feeds } from './components/feeds/Feeds'
 import { User } from './types/User'
 import { getProfile, registerUser } from './api/users-api'
 
