@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Form, Button } from 'semantic-ui-react'
 import Auth from '../auth/Auth'
-import { getUploadUrl, uploadFile } from '../api/users-api'
+import { getAvatartUploadUrl, uploadFile } from '../api/users-api'
 import { User } from '../types/User'
 
 enum UploadState {
@@ -11,11 +11,6 @@ enum UploadState {
 }
 
 interface EditProfileProps {
-  match: {
-    params: {
-      userId: string
-    }
-  }
   auth: Auth
   user: User
 }
@@ -53,7 +48,7 @@ export class EditProfile extends React.PureComponent<
       }
 
       this.setUploadState(UploadState.FetchingPresignedUrl)
-      const uploadUrl = await getUploadUrl(this.props.auth.getIdToken(), this.props.match.params.userId)
+      const uploadUrl = await getAvatartUploadUrl(this.props.auth.getIdToken())
 
       this.setUploadState(UploadState.UploadingFile)
       await uploadFile(uploadUrl, this.state.file)

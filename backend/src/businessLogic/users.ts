@@ -29,3 +29,7 @@ export async function getUserWithId(userId: string): Promise<User> {
 
   return user
 }
+
+export async function getUserAvatartUrl(userId: string): Promise<string> {
+  return imageAccess.getUploadUrl(userId)
+}

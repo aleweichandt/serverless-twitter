@@ -44,20 +44,13 @@ export async function patchUser(
   )
 }
 
-export async function getUploadUrl(
-  idToken: string,
-  userId: string
-): Promise<string> {
-  const response = await Axios.post(
-    `${apiEndpoint}/users/${userId}/attachment`,
-    '',
-    {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${idToken}`
-      }
+export async function getAvatartUploadUrl(idToken: string): Promise<string> {
+  const response = await Axios.post(`${apiEndpoint}/users/me/attachment`, '', {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${idToken}`
     }
-  )
+  })
   return response.data.uploadUrl
 }
 

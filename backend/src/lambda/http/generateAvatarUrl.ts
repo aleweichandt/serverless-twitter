@@ -3,12 +3,11 @@ import * as middy from 'middy'
 import { cors } from 'middy/middlewares'
 
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-
 import { createLogger } from '../../utils/logger'
-import { handleError, getUserId } from '../utils'
-import { getUserWithId } from '../../businessLogic/users'
+import { getUserId, handleError } from '../utils'
+import { getUserAvatartUrl } from '../../businessLogic/users'
 
-const logger = createLogger('getUser')
+const logger = createLogger('generateAvatarUrl')
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -17,13 +16,13 @@ export const handler = middy(
     const userId = userIdParam === 'me' ? getUserId(event) : userIdParam
 
     try {
-      const user = await getUserWithId(userId)
+      const uploadUrl = await getUserAvatartUrl(userId)
       return {
         statusCode: 200,
-        body: JSON.stringify({ user })
+        body: JSON.stringify({ uploadUrl })
       }
     } catch (error) {
-      return handleError(error)
+      handleError(error)
     }
   }
 ).use(cors({ credentials: true }))
