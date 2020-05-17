@@ -3,11 +3,13 @@ This App is realized as capstone project of Udacity Cloud Developer Nanodegree.
 It uses Serverless framework with AWS services for the backend and React for the frontend.
 
 # Functionality of the application
+Any user is allowed to
+* See a list of all posted tweets.
 This application allow the authenticated user to:
 * Edit his/her profile username.
-* Upload his/her profile photo.
+* Upload his/her profile picture.
 * Create new tweets.
-* See a list of all posted tweets.
+* Delete tweets created by himself
 
 # How to run the application
 ## Backend
