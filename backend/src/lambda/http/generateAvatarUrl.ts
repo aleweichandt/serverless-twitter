@@ -12,8 +12,7 @@ const logger = createLogger('generateAvatarUrl')
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     logger.info('Processing event', { event })
-    const userIdParam = event.pathParameters.userId
-    const userId = userIdParam === 'me' ? getUserId(event) : userIdParam
+    const userId = getUserId(event)
 
     try {
       const uploadUrl = await getUserAvatartUrl(userId)
