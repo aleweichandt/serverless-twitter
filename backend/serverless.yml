@@ -28,7 +28,7 @@ provider:
     USERS_TABLE: Sls-Twitter-Users-${self:provider.stage}
     TWEETS_TABLE: Sls-Twitter-Tweets-${self:provider.stage}
     TOPICS_INDEX: TopicsIndex
-    IMAGES_S3_BUCKET: todos-images-alew-${self:provider.stage}
+    IMAGES_S3_BUCKET: Sls-Twitter-Images-alew-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300  
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
 
